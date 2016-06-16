@@ -15,20 +15,24 @@ import org.slf4j.LoggerFactory;
  * @author andimou
  */
 public class JSONPathTermMapProcessor extends AbstractTermMapProcessor {
-    
+
     // Log
-    private static final Logger log = 
+    private static final Logger log =
             LoggerFactory.getLogger(
             JSONPathTermMapProcessor.class.getSimpleName());
-    
+
     @Override
     public List<String> extractValueFromNode(Object node, String expression) {
-        
+
         try {
             if(expression.contains(" ")){
                 expression = ".[\'" + expression + "\']";
             }
             Object val = JsonPath.read(node, expression);
+            // Cope with null values in JSON sources
+            if (val == null) {
+              val = "";
+            }
             List<String> list = new ArrayList<>();
             if (val instanceof JSONArray) {
                 JSONArray arr = (JSONArray) val;
@@ -43,9 +47,9 @@ public class JSONPathTermMapProcessor extends AbstractTermMapProcessor {
             log.error("Exception: " + ex);
             return null;
         }
-        
+
     }
-    
+
     @Override
     public String cleansing(String value) {
         return value;
